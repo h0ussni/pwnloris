@@ -4,7 +4,7 @@ An improved slowloris DOS tool, it keeps attacking until the server starts getti
 
 ## Detailed info
 
-This script abuses the *CVE-2007-6750* vulnerability. This exploits works using just one machine by creating multiple threads and sending from each thread incomplete requests while keeping the collection alive thus using up all the resources of the server and making the website unreachable.
+This tool abuses the *CVE-2007-6750* and *CVE-2012-5568* vulnerabilities. The exploits works by using just one machine by creating multiple threads and sending from each thread incomplete requests while keeping the connections alive thus using up all the resources of the server and making the website unreachable.
 
 
 ## Usage
