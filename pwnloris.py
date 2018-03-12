@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
 
-import os
 import sys
 import socks
 import socket
 import time
 import signal
 import threading
-import requests
 
 MAX_THREAD    = 8
 TIMEOUT_INTVL = 5
