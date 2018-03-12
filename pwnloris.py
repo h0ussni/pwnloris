@@ -151,8 +151,8 @@ def signal_handler(signal, frame):
 
 if __name__ == '__main__':
     if len(sys.argv) < 2 or not sys.argv[1]:
-        print('No URL or IP of the victim given')
-        print('Usage: ~$ ./slowloris.py host:port {-t/--tor}')
+        print('No IP or domain name of the victim given')
+        print('Usage: ~$ ./pwnloris.py host:port {-t/--tor}')
         sys.exit(1)
 
     signal.signal(signal.SIGHUP, signal_handler)
