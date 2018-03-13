@@ -16,12 +16,14 @@ This tool has only one required argument being the host and optionally with a po
 
 
 Optional arguments to be passed:
-  
+
 - **-h, --help**      show this help message and exit
 - **-t, --tor** enable to attack through TOR
 - **-n [THREADS]**    number of threads (default 8)
 - **-k [KEEPALIVE]**  seconds to keep connection alive (default 90)
--  **-i [INTERVAL]**   seconds between keep alive check intervals (default 5)
+- **-i [INTERVAL]**   seconds between keep alive check intervals (default 5)
+- **-sh [SOCKSHOST]**  host TOR is running (default 127.0.0.1)
+- **-sp [SOCKSPORT]**  port TOR is using (default 9050)
 
 All the options could be used as example: an attack on 192.168.2.42 on port 8080 without TOR using 16 threads, 120 seconds keeping the connection alive and a keep-alive check of every 10 seconds:
 

