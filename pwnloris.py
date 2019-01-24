@@ -144,14 +144,14 @@ def signal_handler(signal, frame):
 
 if __name__ == '__main__':
     print("\033[94m")
-    print("______ _    _ _   _  _     ___________ _____ _____")
-    print("| ___ \ |  | | \ | || |   |  _  | ___ \_   _/  ___|")
-    print("| |_/ / |  | |  \| || |   | | | | |_/ / | | \ `--. ")
-    print("|  __/| |/\| | . ` || |   | | | |    /  | |  `--. \\")
-    print("| |   \  /\  / |\  || |___\ \_/ / |\ \ _| |_/\__/ /")
-    print("\_|    \/  \/\_| \_/\_____/\___/\_| \_|\___/\____/ ")
-    print("An improved slowloris DOS tool by h0ussni")
-    print("\033[0m\n")
+    print(r"______ _    _ _   _  _     ___________ _____ _____")
+    print(r"| ___ \ |  | | \ | || |   |  _  | ___ \_   _/  ___|")
+    print(r"| |_/ / |  | |  \| || |   | | | | |_/ / | | \ `--. ")
+    print(r"|  __/| |/\| | . ` || |   | | | |    /  | |  `--. \ ")
+    print(r"| |   \  /\  / |\  || |___\ \_/ / |\ \ _| |_/\__/ /")
+    print(r"\_|    \/  \/\_| \_/\_____/\___/\_| \_|\___/\____/ ")
+    print(r"An improved slowloris DOS tool by h0ussni")
+    print("\033[0m\n", flush=True)
 
     parser = argparse.ArgumentParser()
     parser.add_argument('host', metavar='Host', nargs=None, help='host to be tested')
@@ -163,6 +163,8 @@ if __name__ == '__main__':
     parser.add_argument('-sp', dest='socksport', type=int, default=9050, nargs='?', help='port TOR is using (default 9050)', action="store")
     args = parser.parse_args()
 
-    signal.signal(signal.SIGHUP, signal_handler)
-    signal.signal(signal.SIGINT, signal_handler)
+    if sys.platform != 'win32':
+        signal.signal(signal.SIGHUP, signal_handler)
+        signal.signal(signal.SIGINT, signal_handler)
+
     slowloris()
