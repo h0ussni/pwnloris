@@ -35,3 +35,4 @@ The tool uses `pysocks` for the capability to route through TOR and `argparse` f
 
     $ pip install -r requirements.txt
 
+Besides the packages it's also important to have TOR installed and running on your machine. You can install TOR in different ways depending on your operating system and after installing run TOR as a daemon/background process.
