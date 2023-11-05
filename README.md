@@ -1,6 +1,8 @@
 # pwnloris
 An improved slowloris DOS tool which keeps attacking until the server starts getting exhausted.
 
+[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/h0ussni)
+
 
 ## Detailed info
 
