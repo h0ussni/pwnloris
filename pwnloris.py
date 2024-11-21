@@ -7,6 +7,7 @@ import time
 import signal
 import threading
 import argparse
+import errno
 
 args = None
 
@@ -49,6 +50,13 @@ def setup_attack(host, port):
                 if args.tor:
                     socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, args.sockshost, args.socksport)
                     socket.socket = socks.socksocket
+            except OSError as e:
+                # errno.ENOENT (24) is the error number for "Too many open files" when exceeds ulimit
+                if e.errno == errno.ENOENT:
+                    tries_failed += 1
+                    if tries_failed > 5:
+                        break
+                continue
             except:
                 continue
 
