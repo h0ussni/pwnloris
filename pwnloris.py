@@ -51,8 +51,8 @@ def setup_attack(host, port):
                     socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, args.sockshost, args.socksport)
                     socket.socket = socks.socksocket
             except OSError as e:
-                # errno.ENOENT (24) is the error number for "Too many open files" when exceeds ulimit
-                if e.errno == errno.ENOENT:
+                # errno.EMFILE (24) is the error number for "Too many open files" when exceeds ulimit
+                if e.errno == errno.EMFILE:
                     tries_failed += 1
                     if tries_failed > 5:
                         break
